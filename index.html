@@ -196,12 +196,12 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 <!-- CAT NAV -->
 <nav class="cat-nav" id="catNav">
   <div class="cat-tab active" onclick="filterCat('all',this)">ທັງໝົດ</div>
-  <div class="cat-tab" onclick="filterCat('เฟอร์นิเจอร์',this)">ເຟີນີເຈີ</div>
-  <div class="cat-tab" onclick="filterCat('ของตกแต่ง',this)">ຂອງຕົກແຕ່ງ</div>
-  <div class="cat-tab" onclick="filterCat('แสงสว่าง',this)">ແສງສະຫວ່າງ</div>
-  <div class="cat-tab" onclick="filterCat('ห้องนอน',this)">ຫ້ອງນອນ</div>
-  <div class="cat-tab" onclick="filterCat('ห้องครัว',this)">ຫ້ອງຄົວ</div>
-  <div class="cat-tab" onclick="filterCat('ห้องน้ำ',this)">ຫ້ອງນ້ຳ</div>
+  <div class="cat-tab" onclick="filterCat('ເຟີນີເຈີ',this)">ເຟີນີເຈີ</div>
+  <div class="cat-tab" onclick="filterCat('ຂອງຕົກແຕ່ງ',this)">ຂອງຕົກແຕ່ງ</div>
+  <div class="cat-tab" onclick="filterCat('ແສງສະຫວ່າງ',this)">ແສງສະຫວ່າງ</div>
+  <div class="cat-tab" onclick="filterCat('ຫ້ອງນອນ',this)">ຫ້ອງນອນ</div>
+  <div class="cat-tab" onclick="filterCat('ຫ້ອງຄົວ',this)">ຫ້ອງຄົວ</div>
+  <div class="cat-tab" onclick="filterCat('ຫ້ອງນ້ຳ',this)">ຫ້ອງນ້ຳ</div>
 </nav>
 
 <!-- CATALOG -->
@@ -246,8 +246,8 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 <div class="toast" id="toast"></div>
 
 <script>
-const CATS  = ['เฟอร์นิเจอร์','ของตกแต่ง','แสงสว่าง','ห้องนอน','ห้องครัว','ห้องน้ำ'];
-const EMOJI = {'เฟอร์นิเจอร์':'🛋️','ของตกแต่ง':'🪴','แสงสว่าง':'💡','ห้องนอน':'🛏️','ห้องครัว':'🍳','ห้องน้ำ':'🚿'};
+const CATS  = ['ເຟີນີເຈີ','ຂອງຕົກແຕ່ງ','ແສງສະຫວ່າງ','ຫ້ອງນອນ','ຫ້ອງຄົວ','ຫ້ອງນ້ຳ'];
+const EMOJI = {'ເຟີນີເຈີ':'🛋️','ຂອງຕົກແຕ່ງ':'🪴','ແສງສະຫວ່າງ':'💡','ຫ້ອງນອນ':'🛏️','ຫ້ອງຄົວ':'🍳','ຫ້ອງນ້ຳ':'🚿'};
 let products=[], stockMap={}, catFilter='all';
 
 function fmt(n){return Number(n||0).toLocaleString('th',{maximumFractionDigits:0});}
