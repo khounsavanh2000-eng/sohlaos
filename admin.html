@@ -747,28 +747,45 @@ function clrProduct(){
 
 function editProduct(sku){
   const p=products.find(x=>(x.sku||x['SKU'])===sku);if(!p)return;
-  // switch to add tab
   goTab('tabAdd',document.querySelectorAll('.at')[1]);
-  // fill form
-  document.getElementById('pTh').value=p.nameTh||p['ຊື່ສິນຄ້າ']||'';
-  document.getElementById('pEn').value=p.nameEn||p['ຊື່ EN']||'';
-  document.getElementById('pCat').value=p.cat||p['ໝວດໝູ່']||'ເຟີນີເຈີ';
-  document.getElementById('pPrice').value=p.price||p['ລາຄາຂາຍ']||0;
-  document.getElementById('pSalePrice').value=p.salePrice||p['ລາຄາຫຼຸດ']||0;
-  document.getElementById('pStock').value=(stockMap[sku]||{qty:0}).qty||0;
-  document.getElementById('pPreorder').value=String(p.preorder||'false');
-  const imgs=[p.imgUrl||p['URL ຮູບ']||'',p.imgUrl2||p['URL ຮູບ 2']||'',p.imgUrl3||p['URL ຮູບ 3']||'',p.imgUrl4||p['URL ຮູບ 4']||''];
-  [1,2,3,4].forEach((n,i)=>{const el=document.getElementById('pImg'+n);if(el)el.value=imgs[i]||'';});
+
+  // ອ່ານຂໍ້ມູນທຸກ field ທີ່ເປັນໄປໄດ້
+  document.getElementById('pTh').value      = p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່ສິນຄ້າ (ລາວ)']||'';
+  document.getElementById('pEn').value      = p.nameEn||p['ຊື່ EN']||p['ຊື່ສິນຄ້າ (EN)']||'';
+  document.getElementById('pCat').value     = p.cat||p['ໝວດ']||p['ໝວດໝູ່']||'ເຟີນີເຈີ';
+  document.getElementById('pPrice').value   = p.price||p['ລາຄາຂາຍ']||0;
+  document.getElementById('pSalePrice').value = p.salePrice||p['ລາຄາຫຼຸດ']||0;
+  document.getElementById('pPreorder').value  = String(p.preorder||p['preorder']||'false');
+
+  // ສະຕ໋ອກ
+  const st = stockMap[sku]||{qty:0};
+  document.getElementById('pStock').value = Number(st.qty||st['ສະຕ໋ອກ']||0);
+
+  // URL ຮູບ
+  const imgFields = [
+    p.imgUrl ||p['URL ຮູບ'] ||p['URL ຮູບພາບ']||'',
+    p.imgUrl2||p['URL ຮູບ 2']||'',
+    p.imgUrl3||p['URL ຮູບ 3']||'',
+    p.imgUrl4||p['URL ຮູບ 4']||''
+  ];
+  [1,2,3,4].forEach((n,i)=>{
+    const el=document.getElementById('pImg'+n);
+    if(el) el.value=imgFields[i]||'';
+  });
+
+  // ຕົ້ນທຶນ
   const c=costMap[sku]||{};
-  document.getElementById('pCI').value=c.costItem||0;
-  document.getElementById('pCS').value=c.costShip||0;
-  document.getElementById('pCO').value=c.costOther||0;
-  prvImgs();calcCPv();
-  // change button to update
+  document.getElementById('pCI').value = c.costItem||c['ລາຄາຊື້/ຊີ້ນ']||0;
+  document.getElementById('pCS').value = c.costShip||c['ຄ່າສົ່ງ/ຊີ້ນ']||0;
+  document.getElementById('pCO').value = c.costOther||c['ຄ່າອື່ນ/ຊີ້ນ']||0;
+
+  prvImgs(); calcCPv();
+
+  // ປ່ຽນປຸ່ມ
   document.getElementById('tabAdd').dataset.editSku=sku;
   const btn=document.querySelector('#tabAdd .btn-p');
   if(btn){btn.textContent='💾 ບັນທຶກການແກ້ໄຂ';btn.onclick=updateProduct;}
-  toast(`✏️ ແກ້ໄຂ ${sku}`);
+  toast(`✏️ ກຳລັງແກ້ໄຂ ${sku}`);
 }
 
 async function updateProduct(){
