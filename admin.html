@@ -229,6 +229,7 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
   </div>
   <div class="topbar-right">
     <span class="conn-dot" id="connDot"></span>
+    <button class="logout-btn" onclick="refreshData()" title="ໂຫຼດຂໍ້ມູນໃໝ່" id="refreshBtn">🔄</button>
     <span class="mode-badge">Admin</span>
     <button class="logout-btn" onclick="doLogout()">ອອກ</button>
   </div>
@@ -480,6 +481,14 @@ function doLogout(){
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('loginPwd').value='';
   document.getElementById('loginErr').textContent='';
+}
+
+async function refreshData(){
+  const btn=document.getElementById('refreshBtn');
+  if(btn){btn.textContent='⏳';btn.disabled=true;}
+  await loadData();
+  if(btn){btn.textContent='🔄';btn.disabled=false;}
+  toast('✓ ໂຫຼດຂໍ້ມູນໃໝ່ສຳເລັດ');
 }
 
 // CONFIG
