@@ -912,7 +912,7 @@ function populateSaleSelect(){
   sel.innerHTML='<option value="">— ເລືອກສິນຄ້າ —</option>'+
     products.map(p=>{
       const sku=p.sku||p['SKU'];
-      const name=p.nameTh||p['ຊື່ສິນຄ້າ (ລາວ)']||'';
+      const name=p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່ສິນຄ້າ (ລາວ)']||'';
       const st=stockMap[sku]||{qty:0};
       return`<option value="${sku}" ${sku===cur?'selected':''}>${sku} — ${name} (${st.qty||0} ຊີ້ນ)</option>`;
     }).join('');
@@ -925,7 +925,9 @@ function calcSPv(){
   const cp=+document.getElementById('sP').value||0;
   const disc=+document.getElementById('sD').value||0;
   if(!p){['spR','spD','spP','spS'].forEach(i=>document.getElementById(i).textContent='—');return;}
-  const price=cp||(+p.price||+p['ລາຄາຂາຍ']||0);
+  const salePrice=+p.salePrice||+p['ລາຄາຫຼຸດ']||0;
+  const normalPrice=+p.price||+p['ລາຄາຂາຍ']||0;
+  const price=cp||(salePrice>0?salePrice:normalPrice);
   const net=(price*qty)-disc;
   const c=costMap[p.sku||p['SKU']]||{};
   const unitCost=(+c.costItem||0)+(+c.costShip||0)+(+c.costOther||0);
@@ -947,12 +949,15 @@ async function addSale(doPrint=false){
   const st=stockMap[sku]||{qty:0};
   if(qty>Number(st.qty||0)){toast(`⚠️ ສະຕ໋ອກເຫຼືອ ${st.qty||0} ຊີ້ນ`);return;}
   const cp=+document.getElementById('sP').value||0;
-  const price=cp||(+p.price||+p['ລາຄາຂາຍ']||0);
+  const salePrice=+p.salePrice||+p['ລາຄາຫຼຸດ']||0;
+  const normalPrice=+p.price||+p['ລາຄາຂາຍ']||0;
+  const price=cp||(salePrice>0?salePrice:normalPrice);
   const disc=+document.getElementById('sD').value||0;
   const c=costMap[sku]||{};
   const unitCost=(+c.costItem||0)+(+c.costShip||0)+(+c.costOther||0);
+  const productName=p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່ສິນຄ້າ (ລາວ)']||'';
   const data={
-    sku,productName:p.nameTh||p['ຊື່ສິນຄ້າ (ລາວ)']||'',
+    sku,productName,
     qty,unitPrice:price,discount:disc,unitCost,
     channel:document.getElementById('sCh').value,
     date:document.getElementById('sDate').value||today(),
