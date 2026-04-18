@@ -798,15 +798,25 @@ async function updateProduct(){
     const v=(document.getElementById('pImg'+i)||{}).value||'';
     return v.trim()?toDrive(v.trim()):'';
   });
+  // ດຶງຄ່າເກົ່າຖ້າຊ່ອງຫວ່າງ
+  const editSku = document.getElementById('tabAdd').dataset.editSku;
+  const oldCost = costMap[editSku]||{};
+  const oldStock = (stockMap[editSku]||{qty:0}).qty||0;
+  const ci = +document.getElementById('pCI').value||oldCost.costItem||0;
+  const cs = +document.getElementById('pCS').value||oldCost.costShip||0;
+  const co = +document.getElementById('pCO').value||oldCost.costOther||0;
+  const stockVal = document.getElementById('pStock').value!==''
+    ? +document.getElementById('pStock').value
+    : oldStock;
+
   const res=await callAPI({action:'updateProduct',data:{
     sku,nameTh,nameEn:document.getElementById('pEn').value.trim(),
     cat:document.getElementById('pCat').value,price,
     salePrice:+document.getElementById('pSalePrice').value||0,
     preorder:document.getElementById('pPreorder').value,
+    stock:stockVal,
     imgUrl:imgs[0],imgUrl2:imgs[1],imgUrl3:imgs[2],imgUrl4:imgs[3],
-    costItem:+document.getElementById('pCI').value||0,
-    costShip:+document.getElementById('pCS').value||0,
-    costOther:+document.getElementById('pCO').value||0
+    costItem:ci,costShip:cs,costOther:co
   }});
   if(res.status==='ok'){toast(`✓ ແກ້ໄຂ "${nameTh}" ສຳເລັດ`);clrProduct();await loadData();}
   else toast('❌ '+(res.message||'ເກີດຂໍ້ຜິດພາດ'));
