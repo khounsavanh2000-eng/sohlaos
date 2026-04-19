@@ -509,22 +509,17 @@ const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzszqSdpQOG3AjZal-FGnT
 async function api(payload){
   const action = payload.action;
   const data   = payload.data || {};
-  // ສ້າງ URL params ແຍກກັນ
   const params = new URLSearchParams();
   params.set('action', action);
-  // ສົ່ງ data fields ທີ່ສຳຄັນ
   if (data.pass)    params.set('pass', data.pass);
   if (data.sku)     params.set('sku', data.sku);
   if (data.delta !== undefined) params.set('delta', data.delta);
   if (data.invNo)   params.set('invNo', data.invNo);
   if (data.lotId)   params.set('lotId', data.lotId);
-  // ສົ່ງ data ທີ່ເຫຼືອ JSON
-  const extra = Object.keys(data).filter(k=>!['pass','sku','delta','invNo','lotId'].includes(k));
-  if (extra.length > 0) {
-    const obj = {};
-    extra.forEach(k => obj[k] = data[k]);
-    params.set('d', JSON.stringify(obj));
-  }
+  // ສົ່ງ data ທັງໝົດໃນ d param
+  const obj = {};
+  Object.keys(data).forEach(k => obj[k] = data[k]);
+  if (Object.keys(obj).length > 0) params.set('d', JSON.stringify(obj));
   const url = SCRIPT_URL + '?' + params.toString();
   const res = await fetch(url, {method:'GET', redirect:'follow'});
   return res.json();
@@ -1002,7 +997,7 @@ function renderSales(){
   if(!list.length){el.innerHTML='<div style="padding:24px;text-align:center;color:var(--brown);font-size:13px">ຍັງບໍ່ມີລາຍການຂາຍ</div>';return;}
   el.innerHTML=[...list].reverse().map(s=>{
     const invNo=s.invNo||s['InvNo']||'—';
-    const pName=s.productName||s['ຊື່ສິນຄ້າ']||'';
+    const pName=s.productName||s['ສິນຄ້າ']||s['ຊື່ສິນຄ້າ']||'';
     const cust=s.customerName||s['ຊື່ລູກຄ້າ']||'ລູກຄ້າທົ່ວໄປ';
     const net=s.net||s['ຍອດສຸດທິ']||0;
     const profit=s.profit||s['ກຳໄລ']||0;
@@ -1067,7 +1062,7 @@ function showInvById(invNo){
   const s=sales.find(x=>(x.invNo||x['InvNo'])===invNo);if(!s)return;
   showInv({
     invNo:s.invNo||s['InvNo'],date:s.date||s['ວັນທີ່'],
-    sku:s.sku||s['SKU'],productName:s.productName||s['ຊື່ສິນຄ້າ'],
+    sku:s.sku||s['SKU'],productName:s.productName||s['ສິນຄ້າ']||s['ຊື່ສິນຄ້າ'],
     qty:s.qty||s['ຈຳນວນ']||1,unitPrice:s.unitPrice||s['ລາຄາ/ຊີ້ນ']||0,
     discount:s.discount||s['ສ່ວນຫຼຸດ']||0,net:s.net||s['ຍອດສຸດທິ']||0,
     channel:s.channel||s['ຊ່ອງທາງ'],
@@ -1083,7 +1078,7 @@ function closeInv(){document.getElementById('invoiceModal').classList.remove('sh
 function exportCSV(){
   if(!sales.length){toast('ຍັງບໍ່ມີລາຍການ');return;}
   const rows=[['ເລກໃບບິນ','ວັນທີ່','ລູກຄ້າ','ເບີໂທລະສັບ','SKU','ສິນຄ້າ','ຈຳນວນ','ລາຄາ/ຊີ້ນ','ສ່ວນຫຼຸດ','ຍອດສຸດທິ','ກຳໄລ','ຊ່ອງທາງ','ໝາຍເຫດ']];
-  sales.forEach(s=>rows.push([s.invNo||s['InvNo'],s.date||s['ວັນທີ່'],s.customerName||s['ຊື່ລູກຄ້າ']||'',s.customerPhone||s['ເບີໂທລະສັບ']||'',s.sku||s['SKU'],s.productName||s['ຊື່ສິນຄ້າ'],s.qty||s['ຈຳນວນ'],s.unitPrice||s['ລາຄາ/ຊີ້ນ'],s.discount||s['ສ່ວນຫຼຸດ']||0,s.net||s['ຍອດສຸດທິ'],s.profit||s['ກຳໄລ']||0,CH_LBL[s.channel||s['ຊ່ອງທາງ']]||s.channel,s.note||s['ໝາຍເຫດ']||'']));
+  sales.forEach(s=>rows.push([s.invNo||s['InvNo'],s.date||s['ວັນທີ່'],s.customerName||s['ຊື່ລູກຄ້າ']||'',s.customerPhone||s['ເບີໂທລະສັບ']||'',s.sku||s['SKU'],s.productName||s['ສິນຄ້າ']||s['ຊື່ສິນຄ້າ'],s.qty||s['ຈຳນວນ'],s.unitPrice||s['ລາຄາ/ຊີ້ນ'],s.discount||s['ສ່ວນຫຼຸດ']||0,s.net||s['ຍອດສຸດທິ'],s.profit||s['ກຳໄລ']||0,CH_LBL[s.channel||s['ຊ່ອງທາງ']]||s.channel,s.note||s['ໝາຍເຫດ']||'']));
   const csv=rows.map(r=>r.map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
