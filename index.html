@@ -202,6 +202,7 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
   <div class="cat-tab" onclick="filterCat('ຫ້ອງນອນ',this)">ຫ້ອງນອນ</div>
   <div class="cat-tab" onclick="filterCat('ຫ້ອງຄົວ',this)">ຫ້ອງຄົວ</div>
   <div class="cat-tab" onclick="filterCat('ຫ້ອງນ້ຳ',this)">ຫ້ອງນ້ຳ</div>
+  <div class="cat-tab" onclick="filterCat('ເຄື່ອງໃຊ້ໃນບ້ານ',this)">ເຄື່ອງໃຊ້ໃນບ້ານ</div>
 </nav>
 
 <!-- CATALOG -->
@@ -246,14 +247,14 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 <div class="toast" id="toast"></div>
 
 <script>
-const CATS  = ['ເຟີນີເຈີ','ຂອງຕົກແຕ່ງ','ແສງສະຫວ່າງ','ຫ້ອງນອນ','ຫ້ອງຄົວ','ຫ້ອງນ້ຳ'];
-const EMOJI = {'ເຟີນີເຈີ':'🛋️','ຂອງຕົກແຕ່ງ':'🪴','ແສງສະຫວ່າງ':'💡','ຫ້ອງນອນ':'🛏️','ຫ້ອງຄົວ':'🍳','ຫ້ອງນ້ຳ':'🚿'};
+const CATS  = ['ເຟີນີເຈີ','ຂອງຕົກແຕ່ງ','ແສງສະຫວ່າງ','ຫ້ອງນອນ','ຫ້ອງຄົວ','ຫ້ອງນ້ຳ','ເຄື່ອງໃຊ້ໃນບ້ານ'];
+const EMOJI = {'ເຟີນີເຈີ':'🛋️','ຂອງຕົກແຕ່ງ':'🪴','ແສງສະຫວ່າງ':'💡','ຫ້ອງນອນ':'🛏️','ຫ້ອງຄົວ':'🍳','ຫ້ອງນ້ຳ':'🚿','ເຄື່ອງໃຊ້ໃນບ້ານ':'🏠'};
 let products=[], stockMap={}, catFilter='all';
 
 function fmt(n){return Number(n||0).toLocaleString('th',{maximumFractionDigits:0});}
 function toDriveUrl(url){const m=(url||'').match(/\/d\/([a-zA-Z0-9_-]+)/);return m?`https://drive.google.com/thumbnail?id=${m[1]}&sz=w600`:url;}
 
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzszqSdpQOG3AjZal-FGnTmZydoWDmZ49F6Zkai3QuUJg0LzPXZbvjfaS2wx0l--ocN/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycby2_Pp21RZrDy1_YTtfe_wdv1qArTOT1-DYHJNdxf6zPB9G6jnmXg0LpKil22592Iic/exec';
 
 function init(){
   loadData();
