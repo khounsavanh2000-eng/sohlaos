@@ -261,21 +261,37 @@ function init(){
 }
 
 function loadData(){
+  // ສະແດງ loading
+  const grid=document.getElementById('catalogGrid');
+  if(grid) grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--brown);font-size:13px">⏳ ກຳລັງໂຫຼດ...</div>';
+
   loadJsonp('getProducts', function(rP){
     products=(rP&&rP.data)||[];
-    loadJsonp('getStock', function(rS){
-      const sd=(rS&&rS.data)||{};
-      stockMap={};
-      if(Array.isArray(sd)){
-        sd.forEach(function(row){
-          var sku=row['SKU']||row.sku||'';
-          var qty=Number(row['ສະຕ໋ອກ']||row['Stock']||row.qty||0);
-          stockMap[sku]={qty:qty};
+    if(!products.length){
+      // retry ຄັ້ງດຽວຖ້າບໍ່ໄດ້ຂໍ້ມູນ
+      setTimeout(function(){
+        loadJsonp('getProducts', function(rP2){
+          products=(rP2&&rP2.data)||[];
+          loadJsonp('getStock', function(rS){ processStock(rS); });
         });
-      } else { stockMap=sd; }
-      renderCatalog();
-    });
+      }, 2000);
+      return;
+    }
+    loadJsonp('getStock', function(rS){ processStock(rS); });
   });
+}
+
+function processStock(rS){
+  const sd=(rS&&rS.data)||{};
+  stockMap={};
+  if(Array.isArray(sd)){
+    sd.forEach(function(row){
+      var sku=row['SKU']||row.sku||'';
+      var qty=Number(row['ສະຕ໋ອກ']||row['Stock']||row.qty||0);
+      stockMap[sku]={qty:qty};
+    });
+  } else { stockMap=sd; }
+  renderCatalog();
 }
 
 function loadJsonp(action, cb){
@@ -304,7 +320,7 @@ function loadJsonp(action, cb){
       const el=document.getElementById(cbName);
       if(el)el.remove();
     }
-  }, 15000);
+  }, 20000);
 }
 
 function api(payload){
@@ -488,6 +504,19 @@ function gotoSlide(i){
   if(t)t.style.transform=`translateX(-${i*100}%)`;
   document.querySelectorAll('.g-dot').forEach((d,j)=>d.classList.toggle('active',j===i));
 }
+
+// touch swipe gallery
+let _gTouchX=0;
+document.addEventListener('touchstart',function(e){
+  const wrap=document.getElementById('galleryWrap');
+  if(wrap&&wrap.contains(e.target)) _gTouchX=e.touches[0].clientX;
+},{ passive:true });
+document.addEventListener('touchend',function(e){
+  const wrap=document.getElementById('galleryWrap');
+  if(!wrap||!wrap.contains(e.target))return;
+  const dx=e.changedTouches[0].clientX-_gTouchX;
+  if(Math.abs(dx)>40) gSlide(dx<0?1:-1);
+},{ passive:true });
 
 init();
 </script>
