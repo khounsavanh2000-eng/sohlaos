@@ -351,7 +351,8 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
   <!-- TAB: SALE -->
   <div class="a-sec" id="tabSale">
     <div class="sec-title">✦ ຂໍ້ມູນລູກຄ້າ</div>
-    <div class="fg"><label class="fl">ຊື່ລູກຄ້າ</label><input class="fi" id="sCN" placeholder="ທ້າວ/ນາງ ສົມໃຈ"></div>
+    <div class="fg"><label class="fl">ຊື່ລູກຄ້າ / ຜູ້ຈ່າຍເງິນ</label><input class="fi" id="sCN" placeholder="ທ້າວ/ນາງ ສົມໃຈ"></div>
+    <div class="fg"><label class="fl">ຜູ້ຮັບເງິນ (ພະນັກງານ)</label><input class="fi" id="sCashier" placeholder="ຕົວຢ່າງ: ນ້ອງໃໝ່"></div>
     <div class="g2">
       <div class="fg"><label class="fl">ເບີໂທລະສັບ</label><input class="fi" id="sCP" placeholder="020-xxxx-xxxx"></div>
       <div class="fg"><label class="fl">ທີ່ຢູ່</label><input class="fi" id="sCA" placeholder="ບ້ານ..."></div>
@@ -1071,6 +1072,7 @@ async function submitSale(doPrint=false){
   const customerName=document.getElementById('sCN').value.trim();
   const customerPhone=document.getElementById('sCP').value.trim();
   const customerAddress=document.getElementById('sCA').value.trim();
+  const cashier=document.getElementById('sCashier').value.trim();
   const note=document.getElementById('sNote').value.trim();
   const channel=document.getElementById('sCh').value;
   const date=document.getElementById('sDate').value||today();
@@ -1096,7 +1098,7 @@ async function submitSale(doPrint=false){
 
   if(doPrint && lastRes){
     // ສ້າງໃບບິນລວມ
-    showInvMulti(cart,{customerName,customerPhone,customerAddress,channel,date,note,invNos:allInvNos,grandNet});
+    showInvMulti(cart,{customerName,customerPhone,customerAddress,cashier,channel,date,note,invNos:allInvNos,grandNet});
   }
   cart=[];
   clrSale();
@@ -1120,8 +1122,11 @@ function showInvMulti(items,info){
       <div class="inv-meta">ເລກທີ່: <strong>${info.invNos.join(', ')}</strong><br>ວັນທີ່: ${info.date}<br>${CH_LBL[info.channel]||info.channel}</div>
     </div>
     <div class="inv-parties">
-      <div><div class="inv-party-lbl">ຜູ້ຂາຍ</div><div class="inv-party-val"><strong>Sense of Home</strong></div></div>
-      <div><div class="inv-party-lbl">ລູກຄ້າ</div><div class="inv-party-val">
+      <div><div class="inv-party-lbl">ຜູ້ຂາຍ / ຜູ້ຮັບເງິນ</div><div class="inv-party-val">
+        <strong>Sense of Home</strong><br>
+        ${info.cashier?'👤 ຜູ້ຮັບເງິນ: <strong>'+info.cashier+'</strong>':''}
+      </div></div>
+      <div><div class="inv-party-lbl">ລູກຄ້າ / ຜູ້ຈ່າຍເງິນ</div><div class="inv-party-val">
         <strong>${info.customerName||'ລູກຄ້າທົ່ວໄປ'}</strong><br>
         ${info.customerPhone?'📞 '+info.customerPhone:''}
         ${info.customerAddress?'<br>📍 '+info.customerAddress:''}
@@ -1140,7 +1145,7 @@ function showInvMulti(items,info){
 }
 
 function clrSale(){
-  ['sQ','sP','sD','sCN','sCP','sCA','sNote'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=i==='sQ'?'1':'';});
+  ['sQ','sP','sD','sCN','sCP','sCA','sNote','sCashier'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=i==='sQ'?'1':'';});
   document.getElementById('sProd').value='';
   document.getElementById('sDate').value=today();
   document.getElementById('sCh').value='direct';
@@ -1206,8 +1211,11 @@ function showInv(d){
       <div class="inv-meta">ເລກທີ່: <strong>${d.invNo||'—'}</strong><br>ວັນທີ່: ${d.date||today()}<br>${CH_LBL[d.channel]||d.channel||''}</div>
     </div>
     <div class="inv-parties">
-      <div><div class="inv-party-lbl">ຜູ້ຂາຍ</div><div class="inv-party-val"><strong>Sense of Home</strong></div></div>
-      <div><div class="inv-party-lbl">ລູກຄ້າ</div><div class="inv-party-val">
+      <div><div class="inv-party-lbl">ຜູ້ຂາຍ / ຜູ້ຮັບເງິນ</div><div class="inv-party-val">
+        <strong>Sense of Home</strong><br>
+        ${d.cashier?'👤 ຜູ້ຮັບເງິນ: <strong>'+d.cashier+'</strong>':''}
+      </div></div>
+      <div><div class="inv-party-lbl">ລູກຄ້າ / ຜູ້ຈ່າຍເງິນ</div><div class="inv-party-val">
         <strong>${d.customerName||'ລູກຄ້າທົ່ວໄປ'}</strong><br>
         ${d.customerPhone?'📞 '+d.customerPhone:''}
         ${d.customerAddress?'<br>📍 '+d.customerAddress:''}
