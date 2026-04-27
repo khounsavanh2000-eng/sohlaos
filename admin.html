@@ -350,16 +350,14 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 
   <!-- TAB: SALE -->
   <div class="a-sec" id="tabSale">
-    <div class="sec-title">✦ ບັນທຶກການຂາຍ</div>
-    <div class="fg"><label class="fl">ສິນຄ້າ (SKU)</label>
-      <select class="fs" id="sProd" onchange="calcSPv()"><option value="">— ເລືອກສິນຄ້າ —</option></select>
+    <div class="sec-title">✦ ຂໍ້ມູນລູກຄ້າ</div>
+    <div class="fg"><label class="fl">ຊື່ລູກຄ້າ</label><input class="fi" id="sCN" placeholder="ທ້າວ/ນາງ ສົມໃຈ"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">ເບີໂທລະສັບ</label><input class="fi" id="sCP" placeholder="020-xxxx-xxxx"></div>
+      <div class="fg"><label class="fl">ທີ່ຢູ່</label><input class="fi" id="sCA" placeholder="ບ້ານ..."></div>
     </div>
     <div class="g2">
-      <div class="fg"><label class="fl">ຈຳນວນ (ຊີ້ນ)</label><input class="fi" id="sQ" type="number" value="1" min="1" oninput="calcSPv()"></div>
-      <div class="fg"><label class="fl">ລາຄາຂາຍຈິງ/ຊີ້ນ</label><div class="fhint">ຫວ່າງ = ລາຄາປົກກະຕິ</div><input class="fi" id="sP" type="number" placeholder="ລາຄາປົກກະຕິ" oninput="calcSPv()"></div>
-    </div>
-    <div class="g2">
-      <div class="fg"><label class="fl">ສ່ວນຫຼຸດ (₭)</label><input class="fi" id="sD" type="number" placeholder="0" value="0" oninput="calcSPv()"></div>
+      <div class="fg"><label class="fl">ວັນທີ່</label><input class="fi" id="sDate" type="date"></div>
       <div class="fg"><label class="fl">ຊ່ອງທາງ</label>
         <select class="fs" id="sCh">
           <option value="direct">ໜ້າຮ້ານ</option>
@@ -368,24 +366,47 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
         </select>
       </div>
     </div>
-    <div class="fg"><label class="fl">ວັນທີ່</label><input class="fi" id="sDate" type="date"></div>
+    <div class="fg"><label class="fl">ໝາຍເຫດ</label><input class="fi" id="sNote" placeholder="ລູກຄ້າປະຈຳ..."></div>
+
     <div class="divider"></div>
-    <div class="sec-title">✦ ຂໍ້ມູນລູກຄ້າ (ສຳລັບໃບບິນ)</div>
-    <div class="fg"><label class="fl">ຊື່ລູກຄ້າ</label><input class="fi" id="sCN" placeholder="ຕົວຢ່າງ: ທ້າວ/ນາງ ສົມໃຈ"></div>
-    <div class="g2">
-      <div class="fg"><label class="fl">ເບີໂທລະສັບ</label><input class="fi" id="sCP" placeholder="020-xxxx-xxxx"></div>
-      <div class="fg"><label class="fl">ທີ່ຢູ່ຈັດສົ່ງ</label><input class="fi" id="sCA" placeholder="ບ້ານ..."></div>
+    <div class="sec-title">✦ ລາຍການສິນຄ້າ</div>
+
+    <!-- CART ITEMS -->
+    <div id="cartItems"></div>
+
+    <!-- ADD ITEM ROW -->
+    <div style="background:var(--warm);padding:12px;border:1px solid var(--sand);margin-bottom:10px">
+      <div class="fg" style="margin-bottom:8px">
+        <label class="fl">ເລືອກສິນຄ້າ</label>
+        <select class="fs" id="sProd" onchange="calcSPv()"><option value="">— ເລືອກ —</option></select>
+      </div>
+      <div class="g2">
+        <div class="fg"><label class="fl">ຈຳນວນ</label><input class="fi" id="sQ" type="number" value="1" min="1" oninput="calcSPv()"></div>
+        <div class="fg"><label class="fl">ລາຄາ/ຊີ້ນ</label><div class="fhint">ຫວ່າງ=ປົກກະຕິ</div><input class="fi" id="sP" type="number" placeholder="ອັດຕະໂນມັດ" oninput="calcSPv()"></div>
+      </div>
+      <div class="fg"><label class="fl">ສ່ວນຫຼຸດ (₭)</label><input class="fi" id="sD" type="number" placeholder="0" value="0" oninput="calcSPv()"></div>
+      <div class="sale-preview" style="margin-bottom:8px">
+        <div><div class="sp-label">ລາຄາ</div><div class="sp-val" id="spR">₭ —</div></div>
+        <div><div class="sp-label">ສ່ວນຫຼຸດ</div><div class="sp-val" id="spD">₭ 0</div></div>
+        <div><div class="sp-label">ກຳໄລ</div><div class="sp-val" id="spP">₭ —</div></div>
+        <div><div class="sp-label">ສະຕ໋ອກຫຼັງຂາຍ</div><div class="sp-val" id="spS">—</div></div>
+      </div>
+      <button class="btn-s" onclick="addToCart()" style="width:100%;background:var(--gold2);color:var(--espresso);border:none;font-weight:700">+ ເພີ່ມລາຍການ</button>
     </div>
-    <div class="fg"><label class="fl">ໝາຍເຫດ</label><input class="fi" id="sNote" placeholder="ຕົວຢ່າງ: ລູກຄ້າປະຈຳ, ຫຼຸດພິເສດ"></div>
-    <div class="sale-preview">
-      <div><div class="sp-label">ລາຍຮັບສຸດທິ</div><div class="sp-val" id="spR">₭ —</div></div>
-      <div><div class="sp-label">ສ່ວນຫຼຸດ</div><div class="sp-val" id="spD">₭ 0</div></div>
-      <div><div class="sp-label">ກຳໄລ</div><div class="sp-val" id="spP">₭ —</div></div>
-      <div><div class="sp-label">ສະຕ໋ອກຫຼັງຂາຍ</div><div class="sp-val" id="spS">—</div></div>
+
+    <!-- TOTAL -->
+    <div id="cartTotal" style="display:none;background:var(--espresso);padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;color:var(--sand);font-size:11px;margin-bottom:6px">
+        <span>ລາຍການທັງໝົດ</span><span id="cartCount">0 ລາຍການ</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;color:var(--warm);font-family:'Playfair Display',serif;font-size:22px">
+        <span>ຍອດລວມ</span><span id="cartSum">₭ 0</span>
+      </div>
     </div>
-    <button class="btn-p" onclick="addSale(false)">✓ ບັນທຶກການຂາຍ</button>
-    <button class="btn-g" onclick="addSale(true)">🖨️ ບັນທຶກ &amp; ພິມໃບບິນ</button>
-    <button class="btn-s" onclick="clrSale()" style="width:100%">ລ້າງ</button>
+
+    <button class="btn-p" onclick="submitSale(false)" id="btnSave" style="display:none">✓ ບັນທຶກການຂາຍ</button>
+    <button class="btn-g" onclick="submitSale(true)" id="btnPrint" style="display:none">🖨️ ບັນທຶກ & ພິມໃບບິນ</button>
+    <button class="btn-s" onclick="clrSale()" style="width:100%">ລ້າງທັງໝົດ</button>
   </div>
 
   <!-- TAB: HISTORY -->
@@ -970,11 +991,161 @@ async function addSale(doPrint=false){
     clrSale();await loadData();
   } else toast('❌ '+(res.message||'ເກີດຂໍ້ຜິດພາດ'));
 }
+// CART
+let cart=[];
+
+function addToCart(){
+  const p=getSaleProd();
+  if(!p){toast('⚠️ ເລືອກສິນຄ້າກ່ອນ');return;}
+  const sku=p.sku||p['SKU'];
+  const qty=+document.getElementById('sQ').value||1;
+  const st=stockMap[sku]||{qty:0};
+  const salePrice=+p.salePrice||+p['ລາຄາຫຼຸດ']||0;
+  const normalPrice=+p.price||+p['ລາຄາຂາຍ']||0;
+  const cp=+document.getElementById('sP').value||0;
+  const price=cp||(salePrice>0?salePrice:normalPrice);
+  const disc=+document.getElementById('sD').value||0;
+  const c=costMap[sku]||{};
+  const unitCost=(+c.costItem||0)+(+c.costShip||0)+(+c.costOther||0);
+  const productName=p.nameTh||p['ຊື່ສິນຄ້າ']||'';
+
+  // ກວດສະຕ໋ອກລວມ
+  const inCart=cart.filter(x=>x.sku===sku).reduce((s,x)=>s+x.qty,0);
+  if(qty+inCart > Number(st.qty||0)){
+    toast(`⚠️ ສະຕ໋ອກເຫຼືອ ${st.qty||0} ຊີ້ນ`);return;
+  }
+
+  cart.push({sku,productName,qty,price,disc,unitCost});
+  renderCart();
+  // reset item fields
+  document.getElementById('sProd').value='';
+  document.getElementById('sQ').value='1';
+  document.getElementById('sP').value='';
+  document.getElementById('sD').value='0';
+  calcSPv();
+  toast(`✓ ເພີ່ມ "${productName}" ໃສ່ລາຍການແລ້ວ`);
+}
+
+function removeFromCart(i){
+  cart.splice(i,1);
+  renderCart();
+}
+
+function renderCart(){
+  const el=document.getElementById('cartItems');
+  const total=document.getElementById('cartTotal');
+  const btnSave=document.getElementById('btnSave');
+  const btnPrint=document.getElementById('btnPrint');
+  if(!cart.length){
+    el.innerHTML='';
+    total.style.display='none';
+    btnSave.style.display='none';
+    btnPrint.style.display='none';
+    return;
+  }
+  let grandTotal=0;
+  el.innerHTML=cart.map((item,i)=>{
+    const net=(item.price*item.qty)-item.disc;
+    grandTotal+=net;
+    return`<div style="background:var(--warm);padding:10px 14px;border:1px solid var(--sand);margin-bottom:4px;display:flex;align-items:center;gap:10px">
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--gold2)">${item.sku}</div>
+        <div style="font-weight:500;font-size:13px">${item.productName}</div>
+        <div style="font-size:11px;color:var(--brown)">${item.qty} ຊີ້ນ × ₭${fmt(item.price)} ${item.disc>0?`- ₭${fmt(item.disc)}`:''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:'Playfair Display',serif;font-size:16px">₭${fmt(net)}</div>
+        <button onclick="removeFromCart(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px">ລົບ</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('cartCount').textContent=`${cart.length} ລາຍການ`;
+  document.getElementById('cartSum').textContent=`₭${fmt(grandTotal)}`;
+  total.style.display='block';
+  btnSave.style.display='block';
+  btnPrint.style.display='block';
+}
+
+async function submitSale(doPrint=false){
+  if(!cart.length){toast('⚠️ ຍັງບໍ່ມີລາຍການ');return;}
+  const customerName=document.getElementById('sCN').value.trim();
+  const customerPhone=document.getElementById('sCP').value.trim();
+  const customerAddress=document.getElementById('sCA').value.trim();
+  const note=document.getElementById('sNote').value.trim();
+  const channel=document.getElementById('sCh').value;
+  const date=document.getElementById('sDate').value||today();
+
+  let lastRes=null;
+  let allInvNos=[];
+  let grandNet=0;
+
+  for(const item of cart){
+    const res=await callAPI({action:'addSale',data:{
+      sku:item.sku,productName:item.productName,
+      qty:item.qty,unitPrice:item.price,discount:item.disc,unitCost:item.unitCost,
+      channel,date,customerName,customerPhone,customerAddress,note
+    }});
+    if(res.status==='ok'){
+      allInvNos.push(res.invNo);
+      grandNet+=(res.net||0);
+      lastRes=res;
+    }
+  }
+
+  toast(`✓ ບັນທຶກ ${allInvNos.length} ລາຍການ: ${allInvNos.join(', ')}`);
+
+  if(doPrint && lastRes){
+    // ສ້າງໃບບິນລວມ
+    showInvMulti(cart,{customerName,customerPhone,customerAddress,channel,date,note,invNos:allInvNos,grandNet});
+  }
+  cart=[];
+  clrSale();
+  await loadData();
+}
+
+function showInvMulti(items,info){
+  const rows=items.map((item,i)=>{
+    const net=(item.price*item.qty)-item.disc;
+    return`<tr>
+      <td>${i+1}</td><td>${item.sku}</td><td>${item.productName}</td>
+      <td style="text-align:center">${item.qty}</td>
+      <td>₭${fmt(item.price)}</td>
+      <td>${item.disc>0?`-₭${fmt(item.disc)}`:'—'}</td>
+      <td>₭${fmt(net)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('invoicePrint').innerHTML=`
+    <div class="inv-hdr">
+      <div><div class="inv-brand">Sense of Home</div><div class="inv-brand-sub">ອະລັງການງານແຕ່ງບ້ານ</div></div>
+      <div class="inv-meta">ເລກທີ່: <strong>${info.invNos.join(', ')}</strong><br>ວັນທີ່: ${info.date}<br>${CH_LBL[info.channel]||info.channel}</div>
+    </div>
+    <div class="inv-parties">
+      <div><div class="inv-party-lbl">ຜູ້ຂາຍ</div><div class="inv-party-val"><strong>Sense of Home</strong></div></div>
+      <div><div class="inv-party-lbl">ລູກຄ້າ</div><div class="inv-party-val">
+        <strong>${info.customerName||'ລູກຄ້າທົ່ວໄປ'}</strong><br>
+        ${info.customerPhone?'📞 '+info.customerPhone:''}
+        ${info.customerAddress?'<br>📍 '+info.customerAddress:''}
+      </div></div>
+    </div>
+    <table class="inv-tbl">
+      <thead><tr><th>#</th><th>SKU</th><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາ/ຊີ້ນ</th><th>ສ່ວນຫຼຸດ</th><th>ລວມ</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="inv-totals">
+      <div class="inv-tr grand"><span>ຍອດສຸດທິ</span><span>₭${fmt(info.grandNet)}</span></div>
+    </div>
+    ${info.note?`<div style="margin-top:14px;font-size:11px;color:#777">ໝາຍເຫດ: ${info.note}</div>`:''}
+    <div class="inv-footer">ຂອບໃຈທີ່ສະໜັບສະໜູນ Sense of Home 🏠</div>`;
+  document.getElementById('invoiceModal').classList.add('show');
+}
+
 function clrSale(){
   ['sQ','sP','sD','sCN','sCP','sCA','sNote'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=i==='sQ'?'1':'';});
   document.getElementById('sProd').value='';
   document.getElementById('sDate').value=today();
   document.getElementById('sCh').value='direct';
+  cart=[];
+  renderCart();
   calcSPv();
 }
 
