@@ -439,26 +439,27 @@ function init(){
   document.getElementById('lD').value=today();
 }
 
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxk9R5zk3Rfu2ZHnOHmpKYfwtpO5sfc_pmErHuBHgoJxYjqU17mgn3MWDcLV49XtQwb/exec';
+
 // LOGIN
-function doLogin(){
+async function doLogin(){
   const p=document.getElementById('loginPwd').value;
   if(!p){document.getElementById('loginErr').textContent='ກະລຸນາໃສ່ລະຫັດຜ່ານ';return;}
-  google.script.run
-    .withSuccessHandler(function(r){
-      if(r&&r.valid){
-        PASS=p;
-        document.getElementById('loginScreen').classList.add('hidden');
-        loadData();
-      } else {
-        document.getElementById('loginErr').textContent='❌ ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ';
-        document.getElementById('loginPwd').value='';
-        document.getElementById('loginPwd').focus();
-      }
-    })
-    .withFailureHandler(function(){
-      document.getElementById('loginErr').textContent='❌ ເຊື່ອມຕໍ່ບໍ່ໄດ້';
-    })
-    .handlePost(JSON.stringify({action:'checkPass',data:{pass:p}}));
+  document.getElementById('loginErr').textContent='ກຳລັງກວດສອບ...';
+  try{
+    const r=await callAPI({action:'checkPass',data:{pass:p}});
+    if(r&&r.valid){
+      PASS=p;
+      document.getElementById('loginScreen').classList.add('hidden');
+      loadData();
+    } else {
+      document.getElementById('loginErr').textContent='❌ ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ';
+      document.getElementById('loginPwd').value='';
+      document.getElementById('loginPwd').focus();
+    }
+  }catch(e){
+    document.getElementById('loginErr').textContent='❌ ເຊື່ອມຕໍ່ບໍ່ໄດ້';
+  }
 }
 function doLogout(){
   document.getElementById('loginScreen').classList.remove('hidden');
@@ -475,20 +476,17 @@ function goTab(id,el){
   window.scrollTo(0,0);
 }
 
-// API — ໃຊ້ google.script.run ເໝືອນເດີມ
-function callAPI(payload){
-  return new Promise(function(resolve){
-    google.script.run
-      .withSuccessHandler(function(d){
-        document.getElementById('connDot').className='conn-dot ok';
-        resolve(d);
-      })
-      .withFailureHandler(function(e){
-        document.getElementById('connDot').className='conn-dot err';
-        resolve(offlineHandler(payload));
-      })
-      .handlePost(JSON.stringify(payload));
-  });
+// API — fetch POST
+async function callAPI(payload){
+  try{
+    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload),redirect:'follow'});
+    const d=await res.json();
+    document.getElementById('connDot').className='conn-dot ok';
+    return d;
+  }catch(e){
+    document.getElementById('connDot').className='conn-dot err';
+    return offlineHandler(payload);
+  }
 }
 
 function offlineHandler(p){
