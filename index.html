@@ -287,7 +287,7 @@ function processStock(rS){
   if(Array.isArray(sd)){
     sd.forEach(function(row){
       var sku=row['SKU']||row.sku||'';
-      var qty=Number(row['ສະຕ໋ອກ']||row['Stock']||row.qty||0);
+      var qty=Number(row['ສະຕ໋ອກ']||row['Stock']||row.total||row.qty||0);
       stockMap[sku]={qty:qty};
     });
   } else { stockMap=sd; }
