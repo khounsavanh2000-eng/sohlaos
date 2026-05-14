@@ -479,7 +479,12 @@ function goTab(id,el){
 // API — fetch POST
 async function callAPI(payload){
   try{
-    const res=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload),redirect:'follow'});
+    const res=await fetch(SCRIPT_URL,{
+      method:'POST',
+      body:JSON.stringify(payload),
+      redirect:'follow',
+      headers:{'Content-Type':'text/plain'}
+    });
     const d=await res.json();
     document.getElementById('connDot').className='conn-dot ok';
     return d;
