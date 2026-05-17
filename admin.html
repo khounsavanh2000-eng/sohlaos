@@ -844,23 +844,26 @@ function calcLot(){
 }
 
 async function addLot(){
+  const sku=document.getElementById('lSku').value;
   const qty=+document.getElementById('lQ').value||0;
-  if(!qty){toast('⚠️ ໃສ່ຈຳນວນຊີ້ນດ້ວຍ');return;}
-  const buy=+document.getElementById('lB').value||0;
-  const ship=+document.getElementById('lS').value||0;
-  const fee=+document.getElementById('lF').value||0;
-  const skuSel=document.getElementById('lSku').value||'';
+  const ci=+(document.getElementById('lCostItem')||{value:0}).value||0;
+  const cs=+(document.getElementById('lCostShip')||{value:0}).value||0;
+  const co=+(document.getElementById('lCostOther')||{value:0}).value||0;
+  const cost=ci+cs+co;
+  if(!sku){toast('⚠️ ເລືອກສິນຄ້າດ້ວຍ');return;}
+  if(!qty){toast('⚠️ ໃສ່ຈຳນວນດ້ວຍ');return;}
+  if(!ci){toast('⚠️ ໃສ່ລາຄາຊື້/ຊີ້ນດ້ວຍ');return;}
   const res=await callAPI({action:'addLot',data:{
-    sku: skuSel,
-    name:document.getElementById('lN').value.trim()||'ລ໋ອດໃໝ່',
-    qty,buyTotal:buy,shipTotal:ship,otherTotal:fee,
+    sku,qty,cost,
     date:document.getElementById('lD').value||today()
   }});
   if(res.status==='ok'){
-    const perItem=Number(res.perItem||(buy+ship+fee)/qty||0);
-    toast(`✓ ບັນທຶກລ໋ອດ${skuSel?' SKU:'+skuSel:''} ຕົ້ນທຶນ/ຊີ້ນ ₭${perItem.toFixed(2)}`);
-    clrLot();await loadData();
-  }
+    toast(`✓ ເພີ່ມ Lot ${qty} ຊີ້ນ @ ₭${fmt(cost)}/ຊີ້ນ`);
+    ['lQ','lCostItem','lCostShip','lCostOther'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+    const ls=document.getElementById('lSku');if(ls)ls.value='';
+    const ld=document.getElementById('lD');if(ld)ld.value=today();
+    calcLot();await loadData();
+  } else toast('❌ '+(res.message||'error'));
 }
 
 function useLot(buyPer,shipPer){
@@ -868,13 +871,14 @@ function useLot(buyPer,shipPer){
   document.getElementById('pCS').value=Number(shipPer).toFixed(2);
   goTab('tabAdd',document.querySelectorAll('.at')[1]);
   calcCPv();
-  toast(`✓ ນຳຕົ້ນທຶນ ₭${buyPer} + ຄ່າສົ່ງ ₭${shipPer}/ຊີ້ນ ໄປໃສ່ຟອມແລ້ວ`);
 }
 function clrLot(){
-  ['lN','lQ','lB','lS','lF'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
-  document.getElementById('lD').value=today();
+  ['lQ','lCostItem','lCostShip','lCostOther'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  const ld=document.getElementById('lD');if(ld)ld.value=today();
+  const ls=document.getElementById('lSku');if(ls)ls.value='';
   calcLot();
 }
+
 async function delLot(id){
   if(!confirm('ລົບລ໋ອດນີ້?'))return;
   await callAPI({action:'deleteLot',data:{lotId:id}});
