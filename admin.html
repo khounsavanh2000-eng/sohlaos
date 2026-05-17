@@ -828,11 +828,12 @@ async function chStock(sku,delta){
 // LOT
 function populateLotSkuSelect(){
   const sel=document.getElementById('lSku');if(!sel)return;
-  sel.innerHTML='<option value="">— ບໍ່ຜູກ SKU (ລ໋ອດທົ່ວໄປ) —</option>'+
+  sel.innerHTML='<option value="">— ເລືອກສິນຄ້າ —</option>'+
     products.map(p=>{
       const sku=p.sku||p['SKU']||'';
-      const name=p.nameTh||p['ຊື່']||'';
-      return`<option value="${sku}">${sku} — ${name}</option>`;
+      const name=p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່']||sku;
+      const st=stockMap[sku]||{qty:0};
+      return`<option value="${sku}">${name} · ຄ້າງ ${st.qty||0} ຊີ້ນ</option>`;
     }).join('');
 }
 
