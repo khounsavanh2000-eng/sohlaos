@@ -1042,7 +1042,7 @@ function showInvCart(invNo, d, cartItems){
     const gross=c.price*c.qty;
     const net=gross-c.disc;
     return`<tr>
-      <td>${i+1}</td><td>${c.sku}</td><td>${c.productName}</td>
+      <td>${i+1}</td><td>${c.productName||c.sku}</td>
       <td style="text-align:center">${c.qty}</td>
       <td>₭${fmt(c.price)}</td>
       <td>${c.disc>0?'-₭'+fmt(c.disc):''}</td>
@@ -1066,7 +1066,7 @@ function showInvCart(invNo, d, cartItems){
       </div></div>
     </div>
     <table class="inv-tbl">
-      <thead><tr><th>#</th><th>SKU</th><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາ/ຊີ້ນ</th><th>ສ່ວນຫຼຸດ</th><th>ລວມ</th></tr></thead>
+      <thead><tr><th>#</th><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາ/ຊີ້ນ</th><th>ສ່ວນຫຼຸດ</th><th>ລວມ</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
     <div class="inv-totals">
@@ -1095,9 +1095,9 @@ function showInv(d){
       </div></div>
     </div>
     <table class="inv-tbl">
-      <thead><tr><th>#</th><th>SKU</th><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາ/ຊີ້ນ</th><th>ລວມ</th></tr></thead>
+      <thead><tr><th>#</th><th>ສິນຄ້າ</th><th>ຈຳນວນ</th><th>ລາຄາ/ຊີ້ນ</th><th>ລວມ</th></tr></thead>
       <tbody><tr>
-        <td>1</td><td>${d.sku||'—'}</td><td>${d.productName||'—'}</td>
+        <td>1</td><td>${d.productName||d.sku||'—'}</td>
         <td style="text-align:center">${d.qty}</td>
         <td>₭${fmt(d.unitPrice)}</td>
         <td>₭${fmt(gross)}</td>
