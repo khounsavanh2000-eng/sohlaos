@@ -186,6 +186,16 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 .cart-item-sub{font-size:11px;color:var(--brown);}
 .cart-item-price{font-family:"Playfair Display",serif;font-size:16px;color:var(--espresso);flex-shrink:0;}
 
+
+/* EDIT PRODUCT MODAL */
+#editModal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:600;opacity:0;pointer-events:none;transition:opacity .3s;}
+#editModal.show{opacity:1;pointer-events:all;}
+.edit-sheet{background:var(--warm);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .35s;}
+#editModal.show .edit-sheet{transform:translateY(0);}
+.edit-handle{width:40px;height:4px;background:var(--sand);border-radius:2px;margin:12px auto 8px;}
+.edit-body{padding:16px 20px 32px;}
+.edit-title{font-family:"Playfair Display",serif;font-size:20px;color:var(--espresso);margin-bottom:16px;}
+
 /* TOAST */
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--espresso);color:var(--warm);padding:11px 20px;font-size:12px;border-left:3px solid var(--gold2);opacity:0;transition:all .4s;z-index:8000;white-space:nowrap;border-radius:2px;}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
@@ -423,6 +433,41 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
   <div class="at" onclick="goTab('tabHistory',this)"><span class="at-icon">📋</span>ປະຫວັດ</div>
 </nav>
 
+<!-- EDIT PRODUCT MODAL -->
+<div id="editModal">
+  <div class="edit-sheet">
+    <div class="edit-handle"></div>
+    <div class="edit-body">
+      <div class="edit-title">✏️ ແກ້ໄຂສິນຄ້າ</div>
+      <input type="hidden" id="editSku">
+      <div class="fg"><label class="fl">ຊື່ສິນຄ້າ (ລາວ)</label><input class="fi" id="editName" placeholder="ຊື່ສິນຄ້າ"></div>
+      <div class="fg"><label class="fl">ຊື່ສິນຄ້າ (EN)</label><input class="fi" id="editNameEn" placeholder="English name"></div>
+      <div class="fg"><label class="fl">ລາຄາຂາຍ (ກີບ)</label><input class="fi hl" id="editPrice" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">ລາຄາຫຼຸດ (ກີບ)</label><div class="fhint">0 = ບໍ່ມີ</div><input class="fi" id="editSalePrice" type="number" placeholder="0"></div>
+      <div class="fg"><label class="fl">ໝວດໝູ່</label>
+        <select class="fs" id="editCat">
+          <option>ເຟີນີເຈີ</option><option>ຂອງຕົກແຕ່ງ</option>
+          <option>ແສງສະຫວ່າງ</option><option>ຫ້ອງນອນ</option>
+          <option>ຫ້ອງຄົວ</option><option>ຫ້ອງນ້ຳ</option>
+          <option>ເຄື່ອງໃຊ້ໃນບ້ານ</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">URL ຮູບ 1</label><input class="fi" id="editImg1" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl">URL ຮູບ 2</label><input class="fi" id="editImg2" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl">URL ຮູບ 3</label><input class="fi" id="editImg3" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl">URL ຮູບ 4</label><input class="fi" id="editImg4" placeholder="https://drive.google.com/..."></div>
+      <div class="fg"><label class="fl">ສະຖານະ</label>
+        <select class="fs" id="editPreorder">
+          <option value="false">ປົກກະຕິ</option>
+          <option value="true">PREORDER</option>
+        </select>
+      </div>
+      <button class="btn-g" onclick="saveEditProduct()" style="margin-top:8px">✓ ບັນທຶກການແກ້ໄຂ</button>
+      <button class="btn-s" onclick="closeEditModal()" style="width:100%;margin-top:6px">ຍົກເລີກ</button>
+    </div>
+  </div>
+</div>
+
 <!-- INVOICE MODAL -->
 <div id="invoiceModal">
   <div class="inv-sheet">
@@ -604,7 +649,7 @@ function renderStats(){
   const ok=Object.values(stockMap).filter(s=>Number(s.qty||0)>3).length;
   const low=Object.values(stockMap).filter(s=>Number(s.qty||0)>0&&Number(s.qty||0)<=3).length;
   const out=Object.values(stockMap).filter(s=>Number(s.qty||0)===0).length;
-  const rev=sales.reduce((s,x)=>s+Number(x.net||x['ຍອດສຸດທິ']||0),0);
+  const rev=sales.reduce((s,x)=>s+Number(x['ຍອດສຸດທິ']||x['ສຸດທິ']||x.net||0),0);
   document.getElementById('statsGrid').innerHTML=`
     <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">ສິນຄ້າ</div></div>
     <div class="stat-card warn"><div class="stat-num">${low}</div><div class="stat-label">ໃກ້ໝົດ</div></div>
@@ -652,6 +697,7 @@ function renderProdList(){
           <div class="s-num">${qty}</div>
           <button class="s-btn" onclick="chStock('${sku}',1)">+</button>
         </div>
+        <button class="btn-sm-del" onclick="openEditModal('${sku}')" style="color:var(--gold2)">✏️</button>
         <button class="btn-sm-del" onclick="delProduct('${sku}')">🗑</button>
       </div>
     </div>`;
@@ -982,9 +1028,9 @@ function fSales(ch,el){
   el.classList.add('active');renderSales();
 }
 function renderSales(){
-  const rev=sales.reduce((s,x)=>s+Number(x.net||x['ຍອດສຸດທິ']||0),0);
-  const profit=sales.reduce((s,x)=>s+Number(x.profit||x['ກຳໄລ']||0),0);
-  const qty=sales.reduce((s,x)=>s+Number(x.qty||x['ຈຳນວນ']||0),0);
+  const rev=sales.reduce((s,x)=>s+Number(x['ຍອດສຸດທິ']||x['ສຸດທິ']||x.net||0),0);
+  const profit=sales.reduce((s,x)=>s+Number(x['ກຳໄລ']||x.profit||0),0);
+  const qty=sales.reduce((s,x)=>s+Number(x['ຈຳນວນ']||x.qty||0),0);
   const ss=document.getElementById('salesSum');
   if(ss)ss.innerHTML=`
     <div class="stat-card"><div class="stat-num">${sales.length}</div><div class="stat-label">ລາຍການ</div></div>
@@ -1006,12 +1052,12 @@ function renderSales(){
     const cust=first['ລູກຄ້າ']||first.customerName||'ລູກຄ້າທົ່ວໄປ';
     const date=first['ວັນທີ']||first.date||'';
     const ch=first['ຊ່ອງທາງ']||first.channel||'other';
-    const totalNet=rows.reduce((a,r)=>a+Number(r['ສຸດທິ']||r.net||0),0);
+    const totalNet=rows.reduce((a,r)=>a+Number(r['ຍອດສຸດທິ']||r['ສຸດທິ']||r.net||0),0);
     const totalProfit=rows.reduce((a,r)=>a+Number(r['ກຳໄລ']||r.profit||0),0);
     const itemsHtml=rows.map(r=>{
-      const name=r['ຊື່ສິນຄ້າ']||r.productName||'';
+      const name=r['ສິນຄ້າ']||r['ຊື່ສິນຄ້າ']||r.productName||'';
       const qty=r['qty']||r['ຈຳນວນ']||1;
-      const net=r['ສຸດທິ']||r.net||0;
+      const net=+r['ຍອດສຸດທິ']||+r['ສຸດທິ']||+r.net||0;
       return`<div style="font-size:11px;color:var(--brown)">· ${name} × ${qty} = ₭${fmt(net)}</div>`;
     }).join('');
     return`<div class="sale-card">
@@ -1119,7 +1165,7 @@ function showInvById(invNo){
   if(rows.length>1){
     const cartItems=rows.map(r=>({
       sku:r['SKU']||r.sku||'',
-      productName:r['ຊື່ສິນຄ້າ']||r['ຊື່ສິນຄ້າ (ລາວ)']||r.productName||'',
+      productName:r['ສິນຄ້າ']||r['ຊື່ສິນຄ້າ']||r['ຊື່ສິນຄ້າ (ລາວ)']||r.productName||'',
       qty:+r['qty']||+r['ຈຳນວນ']||1,
       price:+r['ລາຄາ']||+r['ລາຄາ/ຊີ້ນ']||+r.price||+r.unitPrice||0,
       disc:+r['ສ່ວນຫຼຸດ']||+r.disc||+r.discount||0
@@ -1164,6 +1210,52 @@ function exportCSV(){
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
   a.download=`soh-sales-${today()}.csv`;a.click();
   toast('📥 Export CSV ແລ້ວ');
+}
+
+
+// EDIT PRODUCT
+function openEditModal(sku){
+  const p=products.find(x=>(x.sku||x['SKU'])===sku);
+  if(!p)return;
+  document.getElementById('editSku').value=sku;
+  document.getElementById('editName').value=p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່']||'';
+  document.getElementById('editNameEn').value=p.nameEn||p['ຊື່ EN']||'';
+  document.getElementById('editPrice').value=p.price||p['ລາຄາຂາຍ']||0;
+  document.getElementById('editSalePrice').value=p.salePrice||p['ລາຄາຫຼຸດ']||0;
+  document.getElementById('editCat').value=p.cat||p['ໝວດ']||p['ໝວດໝູ່']||'ເຟີນີເຈີ';
+  document.getElementById('editImg1').value=p.imgUrl||p['URL ຮູບ']||'';
+  document.getElementById('editImg2').value=p.imgUrl2||p['URL ຮູບ 2']||'';
+  document.getElementById('editImg3').value=p.imgUrl3||p['URL ຮູບ 3']||'';
+  document.getElementById('editImg4').value=p.imgUrl4||p['URL ຮູບ 4']||'';
+  document.getElementById('editPreorder').value=String(p.preorder||'false');
+  document.getElementById('editModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeEditModal(){
+  document.getElementById('editModal').classList.remove('show');
+  document.body.style.overflow='';
+}
+async function saveEditProduct(){
+  const sku=document.getElementById('editSku').value;
+  const data={
+    sku,
+    nameTh:document.getElementById('editName').value.trim(),
+    nameEn:document.getElementById('editNameEn').value.trim(),
+    price:+document.getElementById('editPrice').value||0,
+    salePrice:+document.getElementById('editSalePrice').value||0,
+    cat:document.getElementById('editCat').value,
+    imgUrl:document.getElementById('editImg1').value.trim(),
+    imgUrl2:document.getElementById('editImg2').value.trim(),
+    imgUrl3:document.getElementById('editImg3').value.trim(),
+    imgUrl4:document.getElementById('editImg4').value.trim(),
+    preorder:document.getElementById('editPreorder').value,
+  };
+  const res=await callAPI({action:'addProduct',data});
+  if(res.status==='ok'){
+    toast(`✓ ແກ້ໄຂ "${data.nameTh}" ແລ້ວ`);
+    closeEditModal();
+    await loadData();
+  } else toast('❌ '+(res.message||'error'));
 }
 
 // TOAST
