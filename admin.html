@@ -830,7 +830,7 @@ function clrProduct(){
   const strip=document.getElementById('imgPrvStrip');if(strip)strip.innerHTML='';;
   document.getElementById('pCat').value='ເຟີນີເຈີ';
   document.getElementById('pPreorder').value='false';
-  document.getElementById('imgPrv').style.display='none';
+  const imgPrv=document.getElementById('imgPrv');if(imgPrv)imgPrv.style.display='none';
   calcCPv();prvSKU();
 }
 async function delProduct(sku){
