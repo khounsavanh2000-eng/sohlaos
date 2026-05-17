@@ -1118,11 +1118,11 @@ function showInvById(invNo){
   const first=rows[0];
   if(rows.length>1){
     const cartItems=rows.map(r=>({
-      sku:r['SKU']||r.sku,
-      productName:r['ຊື່ສິນຄ້າ']||r.productName||'',
+      sku:r['SKU']||r.sku||'',
+      productName:r['ຊື່ສິນຄ້າ']||r['ຊື່ສິນຄ້າ (ລາວ)']||r.productName||'',
       qty:+r['qty']||+r['ຈຳນວນ']||1,
-      price:+r['ລາຄາ']||+r.price||0,
-      disc:+r['ສ່ວນຫຼຸດ']||+r.disc||0
+      price:+r['ລາຄາ']||+r['ລາຄາ/ຊີ້ນ']||+r.price||+r.unitPrice||0,
+      disc:+r['ສ່ວນຫຼຸດ']||+r.disc||+r.discount||0
     }));
     showInvCart(invNo,{
       customerName:first['ລູກຄ້າ']||first.customerName||'',
@@ -1137,15 +1137,19 @@ function showInvById(invNo){
   // Single item — use first directly
   const sinv=first;
   showInv({
-    invNo:sinv.invNo||sinv['InvNo'],date:sinv.date||sinv['ວັນທີ'],
-    sku:sinv.sku||sinv['SKU'],productName:sinv.productName||sinv['ຊື່ສິນຄ້າ'],
-    qty:sinv.qty||sinv['ຈຳນວນ']||1,unitPrice:sinv.price||sinv['ລາຄາ']||0,
-    discount:sinv.disc||sinv['ສ່ວນຫຼຸດ']||0,net:sinv.net||sinv['ສຸດທິ']||0,
-    channel:sinv.channel||sinv['ຊ່ອງທາງ'],
-    customerName:sinv.customerName||sinv['ລູກຄ້າ']||'',
-    customerPhone:sinv.customerPhone||sinv['ໂທ']||'',
-    customerAddress:sinv.customerAddress||sinv['ທີ່ຢູ່']||'',
-    note:sinv.note||sinv['ໝາຍເຫດ']||''
+    invNo:sinv['InvNo']||sinv.invNo,
+    date:sinv['ວັນທີ']||sinv['ວັນທີ່']||sinv.date,
+    sku:sinv['SKU']||sinv.sku,
+    productName:sinv['ຊື່ສິນຄ້າ']||sinv['ຊື່ສິນຄ້າ (ລາວ)']||sinv.productName||'',
+    qty:+sinv['qty']||+sinv['ຈຳນວນ']||1,
+    unitPrice:+sinv['ລາຄາ']||+sinv['ລາຄາ/ຊີ້ນ']||+sinv.price||+sinv.unitPrice||0,
+    discount:+sinv['ສ່ວນຫຼຸດ']||+sinv.disc||+sinv.discount||0,
+    net:+sinv['ສຸດທິ']||+sinv['ຍອດສຸດທິ']||+sinv.net||0,
+    channel:sinv['ຊ່ອງທາງ']||sinv.channel,
+    customerName:sinv['ລູກຄ້າ']||sinv['ຊື່ລູກຄ້າ']||sinv.customerName||'',
+    customerPhone:sinv['ໂທ']||sinv['ເບີໂທລະສັບ']||sinv.customerPhone||'',
+    customerAddress:sinv['ທີ່ຢູ່']||sinv.customerAddress||'',
+    note:sinv['ໝາຍເຫດ']||sinv.note||''
   });
 }
 function closeInv(){document.getElementById('invoiceModal').classList.remove('show');}
