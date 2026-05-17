@@ -306,11 +306,23 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
       </div>
     </div>
     <div class="fg">
-      <label class="fl">URL ຮູບພາບ</label>
+      <label class="fl">URL ຮູບ 1 (ຫຼັກ) *</label>
       <div class="fhint">Google Drive: ແຊຣໄຟລ໌ → Copy link</div>
-      <input class="fi" id="pImg" placeholder="https://drive.google.com/..." oninput="prvImg()" style="margin-top:5px">
-      <img id="imgPrv" style="display:none;width:80px;height:80px;object-fit:cover;border:1px solid var(--sand);margin-top:6px">
+      <input class="fi" id="pImg" placeholder="https://drive.google.com/..." oninput="prvImgs()" style="margin-top:5px">
     </div>
+    <div class="fg">
+      <label class="fl">URL ຮູບ 2</label>
+      <input class="fi" id="pImg2" placeholder="https://drive.google.com/..." oninput="prvImgs()">
+    </div>
+    <div class="fg">
+      <label class="fl">URL ຮູບ 3</label>
+      <input class="fi" id="pImg3" placeholder="https://drive.google.com/..." oninput="prvImgs()">
+    </div>
+    <div class="fg">
+      <label class="fl">URL ຮູບ 4</label>
+      <input class="fi" id="pImg4" placeholder="https://drive.google.com/..." oninput="prvImgs()">
+    </div>
+    <div id="imgPrvStrip" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div>
     <div class="divider"></div>
     <div class="sec-title">✦ ຕົ້ນທຶນຕໍ່ຊີ້ນ</div>
     <div class="g2">
@@ -736,12 +748,20 @@ function prvSKU(){
   const cnt=products.filter(p=>(p.cat||p['ໝວດ']||p['ໝວດໝູ່'])===cat).length+1;
   document.getElementById('skuPrv').textContent=pfx+'-'+String(cnt).padStart(3,'0');
 }
-function prvImg(){
-  const url=document.getElementById('pImg').value.trim();
-  const img=document.getElementById('imgPrv');
-  if(!url){img.style.display='none';return;}
-  img.src=toDrive(url);img.style.display='block';
-  img.onerror=()=>img.style.display='none';
+function prvImg(){prvImgs();}
+function prvImgs(){
+  const strip=document.getElementById('imgPrvStrip');
+  if(!strip)return;
+  strip.innerHTML='';
+  ['pImg','pImg2','pImg3','pImg4'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el||!el.value.trim())return;
+    const img=document.createElement('img');
+    img.src=toDrive(el.value.trim());
+    img.style.cssText='width:70px;height:70px;object-fit:cover;border:1px solid var(--sand);border-radius:4px';
+    img.onerror=()=>img.remove();
+    strip.appendChild(img);
+  });
 }
 function calcCPv(){
   const sell=+document.getElementById('pPrice').value||0;
@@ -775,6 +795,9 @@ async function addProduct(){
     salePrice:+document.getElementById('pSalePrice').value||0,
     preorder:document.getElementById('pPreorder').value,
     imgUrl:toDrive(document.getElementById('pImg').value.trim()),
+    imgUrl2:toDrive((document.getElementById('pImg2')||{value:''}).value.trim()),
+    imgUrl3:toDrive((document.getElementById('pImg3')||{value:''}).value.trim()),
+    imgUrl4:toDrive((document.getElementById('pImg4')||{value:''}).value.trim()),
     costItem:ci,costShip:cs,costOther:co
   }});
 
@@ -803,7 +826,8 @@ async function addProduct(){
 }
 
 function clrProduct(){
-  ['pTh','pEn','pPrice','pSalePrice','pStock','pImg','pCI','pCS','pCO'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  ['pTh','pEn','pPrice','pSalePrice','pStock','pImg','pImg2','pImg3','pImg4','pCI','pCS','pCO'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  const strip=document.getElementById('imgPrvStrip');if(strip)strip.innerHTML='';;
   document.getElementById('pCat').value='ເຟີນີເຈີ';
   document.getElementById('pPreorder').value='false';
   document.getElementById('imgPrv').style.display='none';
