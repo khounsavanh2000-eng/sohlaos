@@ -330,34 +330,30 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 
   <!-- TAB: LOT -->
   <div class="a-sec" id="tabLot">
-    <div class="sec-title">✦ ບັນທຶກລ໋ອດສັ່ງຊື້</div>
-    <p style="font-size:12px;color:var(--brown);margin-bottom:14px;line-height:1.8">ປ້ອນຂໍ້ມູນລ໋ອດ → ກົດ "ນຳໄປໃຊ້" ເພື່ອສົ່ງຕົ້ນທຶນໄປຟອມເພີ່ມສິນຄ້າ</p>
-    <div class="fg"><label class="fl">ຊື່ລ໋ອດ</label><input class="fi" id="lN" placeholder="ຕົວຢ່າງ: ລ໋ອດຈີນ ເດືອນ 4 ປີ 68"></div>
-    <div class="g2">
-      <div class="fg"><label class="fl">ຈຳນວນ (ຊີ້ນ)</label><input class="fi" id="lQ" type="number" placeholder="0" oninput="calcLot()"></div>
-      <div class="fg"><label class="fl">ວັນທີ່ຮັບ</label><input class="fi" id="lD" type="date"></div>
+    <div class="sec-title">✦ ເພີ່ມ Lot ສິນຄ້າ</div>
+    <p style="font-size:12px;color:var(--brown);margin-bottom:14px;line-height:1.8">ເລືອກສິນຄ້າ → ໃສ່ຈຳນວນ + ຕົ້ນທຶນ → ສ້າງ Lot ໃໝ່ (FIFO)</p>
+
+    <div class="fg">
+      <label class="fl">ສິນຄ້າ *</label>
+      <select class="fs" id="lSku" onchange="calcLot()"><option value="">— ເລືອກສິນຄ້າ —</option></select>
     </div>
     <div class="g2">
-      <div class="fg"><label class="fl">ລາຄາຊື້ລວມ (₭)</label><input class="fi" id="lB" type="number" placeholder="0" oninput="calcLot()"></div>
-      <div class="fg"><label class="fl">ຄ່າສົ່ງລວມ (₭)</label><input class="fi" id="lS" type="number" placeholder="0" oninput="calcLot()"></div>
+      <div class="fg"><label class="fl">ຈຳນວນ (ຊີ້ນ) *</label><input class="fi" id="lQ" type="number" placeholder="0" min="1" oninput="calcLot()"></div>
+      <div class="fg"><label class="fl">ວັນທີ່ຊື້</label><input class="fi" id="lD" type="date"></div>
     </div>
-    <div class="fg"><label class="fl">ຄ່າອື່ນໆ ລວມ (₭)</label><div class="fhint">ພາສີ, agent, ຄ່າກວດ</div><input class="fi" id="lF" type="number" placeholder="0" oninput="calcLot()"></div>
+    <div class="g2">
+      <div class="fg"><label class="fl">ລາຄາຊື້/ຊີ້ນ (₭) *</label><input class="fi hl" id="lCostItem" type="number" placeholder="0" oninput="calcLot()"></div>
+      <div class="fg"><label class="fl">ຄ່າສົ່ງ/ຊີ້ນ (₭)</label><input class="fi" id="lCostShip" type="number" placeholder="0" oninput="calcLot()"></div>
+    </div>
+    <div class="fg"><label class="fl">ຄ່າອື່ນໆ/ຊີ້ນ (₭)</label><div class="fhint">ພາສີ, agent ແບ່ງຕໍ່ຊີ້ນ</div><input class="fi" id="lCostOther" type="number" placeholder="0" oninput="calcLot()"></div>
     <div class="cost-box" style="grid-template-columns:repeat(3,1fr)">
       <div><div class="cb-label">ລາຄາຊື້/ຊີ້ນ</div><div class="cb-val" id="lBP">₭ —</div></div>
       <div><div class="cb-label">ຄ່າສົ່ງ+ອື່ນ/ຊີ້ນ</div><div class="cb-val" id="lSP" style="color:var(--gold2)">₭ —</div></div>
       <div><div class="cb-label">ຕົ້ນທຶນລວມ/ຊີ້ນ</div><div class="cb-val" id="lTP">₭ —</div></div>
     </div>
-
-    <!-- ✅ ເພີ່ມ: ເລືອກ SKU ສຳລັບລ໋ອດ -->
-    <div class="fg" style="margin-top:8px">
-      <label class="fl">SKU ສິນຄ້າ (ຖ້າຕ້ອງການຜູກລ໋ອດກັບ FIFO)</label>
-      <div class="fhint">ເລືອກ SKU ເພື່ອສ້າງ Lot ໃນ Sheet Lots ອັດຕະໂນມັດ</div>
-      <select class="fs" id="lSku" style="margin-top:4px"><option value="">— ບໍ່ຜູກ SKU (ລ໋ອດທົ່ວໄປ) —</option></select>
-    </div>
-
-    <button class="btn-p" onclick="addLot()">+ ບັນທຶກລ໋ອດ</button>
+    <button class="btn-p" onclick="addLot()">+ ເພີ່ມ Lot ໃໝ່</button>
     <div class="divider"></div>
-    <div class="sec-title">✦ ປະຫວັດລ໋ອດ</div>
+    <div class="sec-title">✦ ປະຫວັດ Lot ທັງໝົດ</div>
     <div id="lotList"></div>
   </div>
 
@@ -838,13 +834,13 @@ function populateLotSkuSelect(){
 }
 
 function calcLot(){
-  const qty=+document.getElementById('lQ').value||0;
-  const buy=+document.getElementById('lB').value||0;
-  const ship=+document.getElementById('lS').value||0;
-  const fee=+document.getElementById('lF').value||0;
-  document.getElementById('lBP').textContent=qty>0?`₭${(buy/qty).toFixed(2)}`:'₭ —';
-  document.getElementById('lSP').textContent=qty>0?`₭${((ship+fee)/qty).toFixed(2)}`:'₭ —';
-  document.getElementById('lTP').textContent=qty>0?`₭${((buy+ship+fee)/qty).toFixed(2)}`:'₭ —';
+  const ci=+document.getElementById('lCostItem')?.value||0;
+  const cs=+document.getElementById('lCostShip')?.value||0;
+  const co=+document.getElementById('lCostOther')?.value||0;
+  const total=ci+cs+co;
+  document.getElementById('lBP').textContent=ci>0?`₭${fmt(ci)}`:'₭ —';
+  document.getElementById('lSP').textContent=(cs+co)>0?`₭${fmt(cs+co)}`:'₭ —';
+  document.getElementById('lTP').textContent=total>0?`₭${fmt(total)}`:'₭ —';
 }
 
 async function addLot(){
@@ -904,7 +900,10 @@ function renderLotList(){
 
     const lotRows=skuLots.map((l,i)=>{
       const id=l['LotID']||l.lotId||'';
-      const cost=+l['ຕົ້ນທຶນ']||+l.cost||0;
+      const cost=+l['ຕົ້ນທຶນ']||+l.cost||+l.costItem||0;
+      const ship=+l.costShip||0;
+      const other=+l.costOther||0;
+      const totalPerUnit=cost+ship+other;
       const orig=+l['ຈຳນວນເດີມ']||+l.qty||0;
       const left=+l['ຄ້າງ']||+l.left||0;
       const date=(l['ວັນທີຊື້']||l.date||'').slice(0,10);
@@ -912,8 +911,8 @@ function renderLotList(){
       return`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--sand)">
         <div>
           <div style="font-size:10px;color:var(--gold2);letter-spacing:1px;margin-bottom:2px">Lot ${i+1} · ${date}</div>
-          <div style="font-size:12px;color:var(--espresso)">ຕົ້ນທຶນ <strong>₭${fmt(cost)}</strong>/ຊີ້ນ · ຈຳນວນ ${orig} · ຄ້າງ <span style="color:${left<=0?'var(--danger)':'var(--ok)'};font-weight:600">${left}</span></div>
-          <div style="font-size:10px;color:var(--brown)">ຕົ້ນທຶນລວມ Lot ₭${fmt(totalCost)}</div>
+          <div style="font-size:12px;color:var(--espresso)">ຊື້ <strong>₭${fmt(cost)}</strong> + ສົ່ງ ₭${fmt(ship+other)} = <strong>₭${fmt(totalPerUnit)}</strong>/ຊີ້ນ · ຈຳນວນ ${orig} · ຄ້າງ <span style="color:${left<=0?'var(--danger)':'var(--ok)'};font-weight:600">${left}</span></div>
+          <div style="font-size:10px;color:var(--brown)">ຕົ້ນທຶນລວມ Lot ₭${fmt(totalPerUnit*orig)}</div>
         </div>
         <button class="btn-sm-del" onclick="delLot('${id}')">🗑</button>
       </div>`;
@@ -1320,7 +1319,7 @@ function renderLotReport(){
   for(const lot of lots){
     const sku    = lot['SKU']    || lot.sku    || '';
     const lotId  = lot['LotID']  || lot.lotId  || '';
-    const cost   = +lot['ຕົ້ນທຶນ'] || +lot.cost  || 0;
+    const cost   = +lot['ຕົ້ນທຶນ'] || +lot.cost || +lot.costItem || 0;
     const orig   = +lot['ຈຳນວນເດີມ'] || +lot.qty || 0;
     const left   = +lot['ຄ້າງ']  || +lot.left  || 0;
     const date   = lot['ວັນທີຊື້'] || lot.date   || '';
