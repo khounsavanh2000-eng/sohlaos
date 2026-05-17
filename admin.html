@@ -187,6 +187,19 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 .cart-item-price{font-family:"Playfair Display",serif;font-size:16px;color:var(--espresso);flex-shrink:0;}
 
 
+
+/* REPORT */
+.rpt-card{background:var(--warm);border:1px solid var(--sand);padding:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.rpt-name{font-weight:500;font-size:13px;color:var(--espresso);}
+.rpt-sub{font-size:10px;color:var(--brown);margin-top:2px;}
+.rpt-val{font-family:"Playfair Display",serif;font-size:18px;color:var(--espresso);text-align:right;}
+.rpt-val small{font-size:10px;color:var(--brown);font-family:"Noto Sans Thai",sans-serif;}
+.rpt-summary{background:var(--espresso);padding:14px 16px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.rpt-s-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--sand);margin-bottom:3px;}
+.rpt-s-val{font-family:"Playfair Display",serif;font-size:20px;color:var(--warm);}
+.rpt-s-val.g{color:#7ec89e;}
+.rpt-badge{display:inline-block;padding:2px 8px;font-size:9px;border-radius:10px;background:var(--gold2);color:var(--espresso);font-weight:700;}
+
 /* EDIT PRODUCT MODAL */
 #editModal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;z-index:600;opacity:0;pointer-events:none;transition:opacity .3s;}
 #editModal.show{opacity:1;pointer-events:all;}
@@ -422,6 +435,20 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
     <div id="salesList"></div>
   </div>
 
+
+  <!-- TAB: REPORT -->
+  <div class="a-sec" id="tabReport">
+    <div class="sec-title">✦ ສະຫຼຸບຕົ້ນທຶນ Lot</div>
+    <div id="reportLots"></div>
+
+    <div class="divider"></div>
+    <div class="sec-title">✦ ສິນຄ້າຂາຍດີ</div>
+    <div id="reportTopProducts"></div>
+
+    <div class="divider"></div>
+    <div class="sec-title">✦ ກາຟ ຕົ້ນທຶນ vs ລາຍຮັບ</div>
+    <canvas id="reportChart" style="width:100%;max-height:300px"></canvas>
+  </div>
 </div><!-- end mainContent -->
 
 <!-- BOTTOM TABS -->
@@ -431,6 +458,7 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
   <div class="at" onclick="goTab('tabLot',this);populateLotSkuSelect()"><span class="at-icon">📦</span>ລ໋ອດ</div>
   <div class="at" onclick="goTab('tabSale',this);populateSaleSelect()"><span class="at-icon">🧾</span>ຂາຍ</div>
   <div class="at" onclick="goTab('tabHistory',this)"><span class="at-icon">📋</span>ປະຫວັດ</div>
+  <div class="at" onclick="goTab('tabReport',this);renderReport()"><span class="at-icon">📈</span>ລາຍງານ</div>
 </nav>
 
 <!-- EDIT PRODUCT MODAL -->
@@ -492,6 +520,7 @@ body{background:var(--cream);font-family:'Noto Sans Thai',sans-serif;color:var(-
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
 const CATS=['ເຟີນີເຈີ','ຂອງຕົກແຕ່ງ','ແສງສະຫວ່າງ','ຫ້ອງນອນ','ຫ້ອງຄົວ','ຫ້ອງນ້ຳ','ເຄື່ອງໃຊ້ໃນບ້ານ'];
 const EMOJI={'ເຟີນີເຈີ':'🛋️','ຂອງຕົກແຕ່ງ':'🪴','ແສງສະຫວ່າງ':'💡','ຫ້ອງນອນ':'🛏️','ຫ້ອງຄົວ':'🍳','ຫ້ອງນ້ຳ':'🚿','ເຄື່ອງໃຊ້ໃນບ້ານ':'🏠'};
@@ -1256,6 +1285,154 @@ async function saveEditProduct(){
     closeEditModal();
     await loadData();
   } else toast('❌ '+(res.message||'error'));
+}
+
+
+// REPORT
+let reportChart = null;
+
+function renderReport(){
+  renderLotReport();
+  renderTopProducts();
+  renderRevenueChart();
+}
+
+function renderLotReport(){
+  const el = document.getElementById('reportLots');
+  if(!el) return;
+
+  // ສະຫຼຸບຕົ້ນທຶນຈາກ lots
+  const skuMap = {};
+  for(const lot of lots){
+    const sku    = lot['SKU']    || lot.sku    || '';
+    const lotId  = lot['LotID']  || lot.lotId  || '';
+    const cost   = +lot['ຕົ້ນທຶນ'] || +lot.cost  || 0;
+    const orig   = +lot['ຈຳນວນເດີມ'] || +lot.qty || 0;
+    const left   = +lot['ຄ້າງ']  || +lot.left  || 0;
+    const date   = lot['ວັນທີຊື້'] || lot.date   || '';
+    const totalCost = cost * orig;
+    const usedCost  = cost * (orig - left);
+
+    if(!sku) continue;
+    if(!skuMap[sku]) skuMap[sku] = { sku, name:'', lots:[], totalInvest:0, totalUsed:0, totalLeft:0 };
+
+    const p = products.find(x=>(x.sku||x['SKU'])===sku);
+    skuMap[sku].name = p ? (p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່']||sku) : sku;
+    skuMap[sku].lots.push({ lotId, cost, orig, left, date, totalCost });
+    skuMap[sku].totalInvest += totalCost;
+    skuMap[sku].totalUsed   += usedCost;
+    skuMap[sku].totalLeft   += left * cost;
+  }
+
+  const grandInvest = Object.values(skuMap).reduce((s,x)=>s+x.totalInvest, 0);
+  const grandLeft   = Object.values(skuMap).reduce((s,x)=>s+x.totalLeft,   0);
+
+  let html = `<div class="rpt-summary">
+    <div><div class="rpt-s-label">ຕົ້ນທຶນລວມທັງໝົດ</div><div class="rpt-s-val">₭${fmt(grandInvest)}</div></div>
+    <div><div class="rpt-s-label">ຕົ້ນທຶນທີ່ຍັງຄ້າງ (stock)</div><div class="rpt-s-val g">₭${fmt(grandLeft)}</div></div>
+  </div>`;
+
+  html += Object.values(skuMap).map(s => {
+    const lotRows = s.lots.map((l,i) =>
+      `<div style="font-size:11px;color:var(--brown);padding:4px 0;border-bottom:1px solid var(--sand)">
+        <span style="color:var(--gold2)">Lot ${i+1}</span> · ${l.date} · ${l.orig} ຊີ້ນ @ ₭${fmt(l.cost)} · ຄ້າງ ${l.left} · ຕົ້ນທຶນລວມ ₭${fmt(l.totalCost)}
+      </div>`
+    ).join('');
+    return `<div class="rpt-card" style="flex-direction:column;align-items:flex-start">
+      <div style="display:flex;justify-content:space-between;width:100%;margin-bottom:8px">
+        <div>
+          <div class="rpt-name">${s.name}</div>
+          <div class="rpt-sub">${s.sku} · ${s.lots.length} Lot</div>
+        </div>
+        <div class="rpt-val">₭${fmt(s.totalInvest)}<br><small>ຕົ້ນທຶນລວມ</small></div>
+      </div>
+      ${lotRows}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = html;
+}
+
+function renderTopProducts(){
+  const el = document.getElementById('reportTopProducts');
+  if(!el) return;
+
+  // ນັບຈາກ sales
+  const skuSales = {};
+  for(const s of sales){
+    const sku  = s['SKU']  || s.sku  || '';
+    const name = s['ສິນຄ້າ'] || s.productName || sku;
+    const qty  = +s['ຈຳນວນ'] || +s.qty  || 0;
+    const net  = +s['ຍອດສຸດທິ'] || +s.net || 0;
+    const profit = +s['ກຳໄລ'] || +s.profit || 0;
+    if(!sku) continue;
+    if(!skuSales[sku]) skuSales[sku] = { sku, name, qty:0, net:0, profit:0 };
+    skuSales[sku].qty    += qty;
+    skuSales[sku].net    += net;
+    skuSales[sku].profit += profit;
+  }
+
+  const sorted = Object.values(skuSales).sort((a,b)=>b.qty-a.qty);
+  if(!sorted.length){ el.innerHTML='<div style="padding:20px;text-align:center;color:var(--brown)">ຍັງບໍ່ມີຂໍ້ມູນການຂາຍ</div>'; return; }
+
+  const maxQty = sorted[0].qty || 1;
+  el.innerHTML = sorted.map((s,i) => `
+    <div class="rpt-card">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          ${i<3?`<span class="rpt-badge">#${i+1}</span>`:`<span style="font-size:12px;color:var(--brown)">#${i+1}</span>`}
+          <div class="rpt-name">${s.name}</div>
+        </div>
+        <div style="background:var(--sand);border-radius:4px;height:6px;margin-bottom:4px">
+          <div style="background:var(--gold2);height:6px;border-radius:4px;width:${Math.round(s.qty/maxQty*100)}%"></div>
+        </div>
+        <div class="rpt-sub">${s.qty} ຊີ້ນ · ລາຍຮັບ ₭${fmt(s.net)} · ກຳໄລ ₭${fmt(s.profit)}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function renderRevenueChart(){
+  const canvas = document.getElementById('reportChart');
+  if(!canvas) return;
+
+  // ໂຮມຍອດຂາຍຕາມເດືອນ
+  const monthly = {};
+  for(const s of sales){
+    const date = s['ວັນທີ'] || s.date || '';
+    const mon  = date.slice(0,7); // yyyy-MM
+    if(!mon) continue;
+    if(!monthly[mon]) monthly[mon] = { net:0, cost:0, profit:0 };
+    monthly[mon].net    += +s['ຍອດສຸດທິ'] || +s.net    || 0;
+    monthly[mon].cost   += +s['ຕົ້ນທຶນລວມ'] || +s.costTotal || 0;
+    monthly[mon].profit += +s['ກຳໄລ']      || +s.profit  || 0;
+  }
+
+  const labels  = Object.keys(monthly).sort();
+  const revenue = labels.map(m => monthly[m].net);
+  const costs   = labels.map(m => monthly[m].cost);
+  const profits = labels.map(m => monthly[m].profit);
+
+  if(reportChart) reportChart.destroy();
+
+  reportChart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label:'ລາຍຮັບ',   data:revenue, backgroundColor:'rgba(212,168,90,0.8)',  borderRadius:4 },
+        { label:'ຕົ້ນທຶນ',   data:costs,   backgroundColor:'rgba(139,107,74,0.6)',  borderRadius:4 },
+        { label:'ກຳໄລ',     data:profits, backgroundColor:'rgba(74,140,92,0.8)',   borderRadius:4, type:'line', tension:0.3, fill:false, borderColor:'#4A8C5C', pointBackgroundColor:'#4A8C5C' },
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ position:'top' } },
+      scales:{
+        y:{ ticks:{ callback: v => '₭'+Number(v).toLocaleString('th') } }
+      }
+    }
+  });
 }
 
 // TOAST
