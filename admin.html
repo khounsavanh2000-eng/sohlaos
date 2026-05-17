@@ -885,34 +885,47 @@ async function delLot(id){
 }
 function renderLotList(){
   const el=document.getElementById('lotList');
-  if(!lots.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--brown);font-size:13px">ຍັງບໍ່ມີລ໋ອດ</div>';return;}
-  el.innerHTML=[...lots].reverse().map(l=>{
-    const id=l.lotId||l['LotID'];
-    const name=l.name||l['ຊື່ລ໋ອດ']||'';
-    const sku=l.sku||l['SKU']||'';
-    const qty=+l.qty||+l['ຈຳນວນຊີ້ນ']||+l['ຈຳນວນເດີມ']||0;
-    const left=+l.left||+l['ຄ້າງ']||qty;
-    const buy=+l.buyTotal||+l['ລາຄາຊື້ລວມ']||0;
-    const ship=+l.shipTotal||+l['ຄ່າສົ່ງລວມ']||0;
-    const fee=+l.otherTotal||+l['ຄ່າອື່ນໆ']||0;
-    // ຮອງຮັບທັງ Lot ເກົ່າ (buyTotal) ແລະ Lot FIFO ໃໝ່ (cost)
-    const cost=+l.cost||+l['ຕົ້ນທຶນ']||0;
-    const buyPer=cost>0?cost:(qty>0?(buy/qty):0);
-    const shipPer=cost>0?0:(qty>0?((ship+fee)/qty):0);
-    return`<div class="lot-card">
-      <div class="lot-head">
+  if(!lots.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--brown);font-size:13px">ຍັງບໍ່ມີ Lot</div>';return;}
+
+  // ຈັດກຸ່ມຕາມ SKU
+  const skuGroups={};
+  lots.forEach(l=>{
+    const sku=l['SKU']||l.sku||'';
+    if(!skuGroups[sku]) skuGroups[sku]=[];
+    skuGroups[sku].push(l);
+  });
+
+  el.innerHTML=Object.entries(skuGroups).map(([sku,skuLots])=>{
+    const p=products.find(x=>(x.sku||x['SKU'])===sku);
+    const name=p?(p.nameTh||p['ຊື່ສິນຄ້າ']||p['ຊື່']||sku):sku;
+    const totalLeft=skuLots.reduce((s,l)=>s+(+l['ຄ້າງ']||+l.left||0),0);
+    const totalOrig=skuLots.reduce((s,l)=>s+(+l['ຈຳນວນເດີມ']||+l.qty||0),0);
+
+    const lotRows=skuLots.map((l,i)=>{
+      const id=l['LotID']||l.lotId||'';
+      const cost=+l['ຕົ້ນທຶນ']||+l.cost||0;
+      const orig=+l['ຈຳນວນເດີມ']||+l.qty||0;
+      const left=+l['ຄ້າງ']||+l.left||0;
+      const date=(l['ວັນທີຊື້']||l.date||'').slice(0,10);
+      const totalCost=cost*orig;
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--sand)">
         <div>
-          <div class="lot-name">${name}${sku?` <span style="font-size:10px;color:var(--gold2)">[${sku}]</span>`:''}</div>
-          <div class="lot-date">${l.date||l['ວັນທີ່ຮັບ']||l['ວັນທີຊື້']||''} · ${qty} ຊີ້ນ${left<qty?` (ຄ້າງ ${left})`:''}</div>
+          <div style="font-size:10px;color:var(--gold2);letter-spacing:1px;margin-bottom:2px">Lot ${i+1} · ${date}</div>
+          <div style="font-size:12px;color:var(--espresso)">ຕົ້ນທຶນ <strong>₭${fmt(cost)}</strong>/ຊີ້ນ · ຈຳນວນ ${orig} · ຄ້າງ <span style="color:${left<=0?'var(--danger)':'var(--ok)'};font-weight:600">${left}</span></div>
+          <div style="font-size:10px;color:var(--brown)">ຕົ້ນທຶນລວມ Lot ₭${fmt(totalCost)}</div>
         </div>
         <button class="btn-sm-del" onclick="delLot('${id}')">🗑</button>
+      </div>`;
+    }).join('');
+
+    return`<div class="lot-card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div class="lot-name">${name}</div>
+          <div class="lot-date">${sku} · ${skuLots.length} Lot · ຄ້າງລວມ <strong>${totalLeft}</strong>/${totalOrig} ຊີ້ນ</div>
+        </div>
       </div>
-      <div class="lot-stats">
-        <div><div class="lot-stat-label">ລາຄາຊື້/ຊີ້ນ</div><div class="lot-stat-val">₭${buyPer.toFixed(2)}</div></div>
-        <div><div class="lot-stat-label">ຄ່າສົ່ງ+ອື່ນ/ຊີ້ນ</div><div class="lot-stat-val" style="color:var(--gold2)">₭${shipPer.toFixed(2)}</div></div>
-        <div><div class="lot-stat-label">ຕົ້ນທຶນລວມ/ຊີ້ນ</div><div class="lot-stat-val">₭${(buyPer+shipPer).toFixed(2)}</div></div>
-      </div>
-      <button class="btn-g" onclick="useLot(${buyPer.toFixed(2)},${shipPer.toFixed(2)})" style="margin-bottom:0;font-size:10px;padding:10px">ນຳໄປໃຊ້ →</button>
+      ${lotRows}
     </div>`;
   }).join('');
 }
