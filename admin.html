@@ -1186,7 +1186,7 @@ function showInvById(invNo){
     invNo:sinv['InvNo']||sinv.invNo,
     date:sinv['ວັນທີ']||sinv['ວັນທີ່']||sinv.date,
     sku:sinv['SKU']||sinv.sku,
-    productName:sinv['ຊື່ສິນຄ້າ']||sinv['ຊື່ສິນຄ້າ (ລາວ)']||sinv.productName||'',
+    productName:sinv['ສິນຄ້າ']||sinv['ຊື່ສິນຄ້າ']||sinv['ຊື່ສິນຄ້າ (ລາວ)']||sinv.productName||'',
     qty:+sinv['qty']||+sinv['ຈຳນວນ']||1,
     unitPrice:+sinv['ລາຄາ']||+sinv['ລາຄາ/ຊີ້ນ']||+sinv.price||+sinv.unitPrice||0,
     discount:+sinv['ສ່ວນຫຼຸດ']||+sinv.disc||+sinv.discount||0,
